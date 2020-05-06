@@ -1,7 +1,0 @@
-prefix: "[Prueba de prefijo en español] "
-number-format: "Esto requiere un formato de número: %d."
-name-list: "Aquí hay algunos perdedores: %s"
-multi-line: |-
-  Esto es texto de varias líneas en YAML.
-  No hay una necesidad para añadir caracteras de nuevo línea a mano.
-  YAML es genial así >:V
