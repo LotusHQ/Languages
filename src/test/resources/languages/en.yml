@@ -1,0 +1,7 @@
+prefix: "[Test English Prefix] "
+number-format: "This requires a number format: %d!"
+name-list: "Here are a few losers: %s"
+multi-line: |-
+  This is multi-line text in yaml.
+  There is no need to add new line characters manually.
+  YAML is just cool like that >:V
