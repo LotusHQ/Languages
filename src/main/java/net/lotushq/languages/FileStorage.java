@@ -2,10 +2,8 @@ package net.lotushq.languages;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.apache.commons.lang.LocaleUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
@@ -13,14 +11,9 @@ import org.reflections.scanners.ResourcesScanner;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public final class FileStorage<T extends LanguageFile> {
 
@@ -39,15 +32,23 @@ public final class FileStorage<T extends LanguageFile> {
             throw new IllegalStateException("Unable to create language file storage in " + baseDirectory.getName());
         }
 
-        saveDefaultFiles(plugin);
+        saveDefaultFiles(plugin, defaultLangFile);
         this.defaultLangFile = loadFile(Locale.ENGLISH, defaultLangFile);
 
     }
 
-    private void saveDefaultFiles(JavaPlugin plugin) {
+    private void saveDefaultFiles(JavaPlugin plugin, T langFile) {
+
+        SupportedLanguages support = langFile.getClass().getAnnotation(SupportedLanguages.class);
+        List<String> supported = Arrays.stream(support.languages())
+                .map(lang -> lang.concat(".yml"))
+                .collect(Collectors.toList());
+
         Reflections reflections = new Reflections(null, new ResourcesScanner());
-        Set<String> relativePaths = reflections.getResources(name -> name.endsWith(".yml"));
-        relativePaths.forEach(path -> plugin.saveResource(path, true));
+        Set<String> relativePaths = reflections.getResources(supported::contains);
+
+        relativePaths.forEach(path -> plugin.saveResource(path, false));
+
     }
 
     public T loadFile(Locale locale, T languageFile) {

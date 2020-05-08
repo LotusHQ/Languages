@@ -11,7 +11,7 @@
 
     <name>Languages</name>
 
-    <description>Provides a framework for configurable messages that supports multiple languages.</description>
+    <description>Provides a framework for configurable messages that supportedLanguages multiple languages.</description>
     <properties>
         <java.version>9</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
