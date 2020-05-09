@@ -47,7 +47,7 @@ public final class FileStorage<T extends LanguageFile> {
         Reflections reflections = new Reflections(null, new ResourcesScanner());
         Set<String> relativePaths = reflections.getResources(supported::contains);
 
-        relativePaths.forEach(path -> plugin.saveResource(path, false));
+        relativePaths.forEach(path -> plugin.saveResource(path, true));
 
     }
 
