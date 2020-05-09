@@ -30,7 +30,7 @@ public abstract class LanguageFile extends YamlConfiguration implements Cloneabl
      */
     public String error(String message) {
         return Optional.ofNullable(message)
-                .map(msg -> color(prefix()) + ChatColor.RED + msg)
+                .map(msg -> color(prefix() + ChatColor.RED + msg))
                 .orElse(unknown());
     }
 
