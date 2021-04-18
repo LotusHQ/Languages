@@ -6,16 +6,13 @@ import com.google.common.cache.LoadingCache;
 import net.lotushq.languages.annotation.ConfigurationSource;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reflections.Reflections;
-import org.reflections.scanners.ResourcesScanner;
 
 import java.io.File;
 import java.lang.reflect.Proxy;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * ConfigurationCache is responsible for caching {@link MessageRetrievalHandler}s, which hold {@link YamlConfiguration}
@@ -30,7 +27,8 @@ public final class ConfigurationCache {
     /**
      * Constructor used when the default language directory is used, which is under "languages" in the plugin's data
      * folder. Using this constructor will also copy the yaml configurations from the jar's resources to the data folder.
-     * @param plugin the java plugin instance
+     *
+     * @param plugin        the java plugin instance
      * @param providerClass the provider interface
      */
     public ConfigurationCache(JavaPlugin plugin, Class<? extends MessageProvider> providerClass) {
@@ -41,6 +39,7 @@ public final class ConfigurationCache {
     /**
      * Constructor used when a custom language directory is needed. YAML configurations will NOT be copied from
      * the jar's resources to this directory.
+     *
      * @param langDirectory the directory to retrieve the configurations from
      * @param providerClass the provider interface
      */
@@ -56,13 +55,13 @@ public final class ConfigurationCache {
                 .expireAfterAccess(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<>() {
                     @Override
-                    public MessageRetrievalHandler load(Locale key)  {
+                    public MessageRetrievalHandler load(Locale key) {
                         File file = new File(directory, key.getLanguage() + ".yml");
                         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                         MessageRetrievalHandler handler = new MessageRetrievalHandler(config);
 
                         MessageProvider proxy = (MessageProvider) Proxy.newProxyInstance(providerClass.getClassLoader(),
-                                new Class[]{ providerClass }, handler);
+                                new Class[]{providerClass}, handler);
 
                         handler.setProxy(proxy);
                         return handler;
@@ -72,6 +71,7 @@ public final class ConfigurationCache {
 
     /**
      * Retrieves the dynamic proxy implementation of {@link MessageProvider} for the requested locale.
+     *
      * @param locale the locale being requested
      * @return the provider implementation attached to the requested locale.
      */
@@ -86,17 +86,15 @@ public final class ConfigurationCache {
 
     /**
      * Copies the "languages" resources from the jar to the plugin's data folder, preserving the file structure.
+     *
      * @param plugin the java plugin used to find the data folder.
      */
     private void saveDefaultFiles(JavaPlugin plugin) {
-        List<String> supported = Arrays.stream(configSource.languages())
-                .map(lang -> lang.concat(".yml"))
-                .collect(Collectors.toList());
+        final String relativePath = "languages" + File.separator + configSource.folderName() + File.separator;
 
-        Reflections reflections = new Reflections(null, new ResourcesScanner());
-        Set<String> relativePaths = reflections.getResources(supported::contains);
-
-        relativePaths.forEach(path -> plugin.saveResource(path, true));
+        Stream.of(configSource.languages())
+                .map(language -> relativePath + language + ".yml")
+                .forEach(path -> plugin.saveResource(path, true));
     }
 
 }
