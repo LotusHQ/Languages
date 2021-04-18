@@ -12,6 +12,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * An InvocationHandler that uses the proxy to retrieve the {@link MessageInfo} annotation from the called method.
@@ -59,12 +61,19 @@ public final class MessageRetrievalHandler implements InvocationHandler {
             remainingArgs = Arrays.copyOfRange(args, pathReplacements, args.length);
         }
 
-        // Retrieve the raw message from the configuration file.
-        String rawMessage = yamlConfiguration.getString(path);
-
         // Retrieve the prefix from the config if the FormatPreset calls for it.
         FormatPreset formatPreset = info.format();
         String prefix = formatPreset == FormatPreset.PLAIN ? null : ((MessageProvider) proxy).prefix();
+
+        // Apply plain formatting to all elements of the list and return
+        if (List.class.isAssignableFrom(method.getReturnType())) {
+            return yamlConfiguration.getStringList(path).stream()
+                    .map(string -> formatPreset.format(prefix, string))
+                    .collect(Collectors.toList());
+        }
+
+        // Retrieve the raw message from the configuration file.
+        String rawMessage = yamlConfiguration.getString(path);
 
         // Append the prefix to the raw message and resolve replacements by formatting the string.
         return String.format(formatPreset.format(prefix, rawMessage), remainingArgs);

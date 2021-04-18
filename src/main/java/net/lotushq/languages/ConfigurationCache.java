@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.Proxy;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -90,10 +91,11 @@ public final class ConfigurationCache {
      * @param plugin the java plugin used to find the data folder.
      */
     private void saveDefaultFiles(JavaPlugin plugin) {
-        final String relativePath = "languages" + File.separator + configSource.folderName() + File.separator;
+        // Enables the source folderName to be empty if wanted.
+        final Path relative = Path.of("languages", configSource.folderName());
 
         Stream.of(configSource.languages())
-                .map(language -> relativePath + language + ".yml")
+                .map(language -> relative.resolve(language) + ".yml")
                 .forEach(path -> plugin.saveResource(path, true));
     }
 
