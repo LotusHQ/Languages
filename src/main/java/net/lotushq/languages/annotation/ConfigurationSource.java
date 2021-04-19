@@ -1,4 +1,4 @@
-package net.lotushq.languages;
+package net.lotushq.languages.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,7 +11,13 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface SupportedLanguages {
+public @interface ConfigurationSource {
+
+    /**
+     * The name of the folder that will contain the configuration files for each supported language.
+     * @return the folder name
+     */
+    String folderName();
 
     /**
      * An array of language codes that this file supports.
